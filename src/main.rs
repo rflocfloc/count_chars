@@ -1,4 +1,5 @@
 
+use clap::Parser;
 // u32 to char upper bounds included
 // symbols: 33 - 47 | 58 - 64 | 91 - 96 | 123 - 126 
 // numbers: 48 - 57
@@ -64,7 +65,11 @@ fn counts_to_vec(counts: &Counts) -> Vec<Vec<(char, u32)>> {
 
     }
 
-    
+   
+    symbol_counts.sort_by_key(|&(chr,c)|  std::cmp::Reverse(c));
+    letter_counts.sort_by_key(|&(chr,c)|  std::cmp::Reverse(c));
+    number_counts.sort_by_key(|&(chr,c)|  std::cmp::Reverse(c));
+   
      return vec![letter_counts, symbol_counts, number_counts]
 }
 
@@ -76,20 +81,38 @@ fn counts_table(count_vec: Vec<(char,u32)>){
 
 }
 
-fn display_counts(counts_vec: Vec<Vec<(char, u32)>>, which: u8){
+fn display_counts(counts_vec: Vec<Vec<(char, u32)>>, which: usize){
   // depending on option:
-  // 0: all
-  // 1: letters
-  // 2: symbols
-  // 3: numbers
+  // 0: symbols 
+  // 1: numbers
+  // 2: letters
+  // 3: symbols & numbers
+  // 4: all
   
-    // apply counts_table 
 
+  let rows: Vec<usize> = counts_vec.iter().map(|x| x.len()).collect();
+  
+  let row_len: usize = if which < 3 {
+      rows[which]
+  } else if which == 3 {
+   match rows[0..1].iter().max(){
+        Some(x) => *x,
+        None => 0
+   }
+   
+  } else {
+   // rows.max()
+   match rows.iter().max(){
+        Some(x) => *x,
+        None => 0
+   }
+   
+  };
+  println!("{:?}", row_len);
 }
 
-   
+#[derive(Parser)]   
 struct Cli {
-
     path: std::path::PathBuf,
 }
 
@@ -97,10 +120,8 @@ fn main(){
     println!("Hello World!");
     let path = std::env::args().nth(1).expect("no path given");
 
-    let args = Cli {
-        path: std::path::PathBuf::from(path),
-    };
-   
+    let args = Cli::parse();
+
     println!("Reading file {:?}", args.path);
     let content = std::fs::read_to_string(&args.path).expect("could not read file");
 
@@ -111,10 +132,11 @@ fn main(){
     let res: Counts = sum_counts(&counts_v);
     let res_display: Vec<Vec<(char, u32)>> = counts_to_vec(&res);
 
-    for r in res_display {
+    for r in &res_display {
         println!("{:?}", r);
         println!("");
     }
     
+    display_counts(res_display, 4);
 }
 
