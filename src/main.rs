@@ -73,15 +73,7 @@ fn counts_to_vec(counts: &Counts) -> Vec<Vec<(char, u32)>> {
      return vec![letter_counts, symbol_counts, number_counts]
 }
 
-
-fn counts_table(count_vec: Vec<(char,u32)>){
-
-    // sort vector
-    // print vector
-
-}
-
-fn display_counts(counts_vec: Vec<Vec<(char, u32)>>, which: usize){
+fn display_symbol_counts(counts_vec: Vec<Vec<(char, u32)>>){
   // depending on option:
   // 0: symbols 
   // 1: numbers
@@ -91,24 +83,12 @@ fn display_counts(counts_vec: Vec<Vec<(char, u32)>>, which: usize){
   
 
   let rows: Vec<usize> = counts_vec.iter().map(|x| x.len()).collect();
-  
-  let row_len: usize = if which < 3 {
-      rows[which]
-  } else if which == 3 {
-   match rows[0..1].iter().max(){
-        Some(x) => *x,
-        None => 0
-   }
-   
-  } else {
-   // rows.max()
-   match rows.iter().max(){
-        Some(x) => *x,
-        None => 0
-   }
-   
-  };
-  println!("{:?}", row_len);
+  println!("{:14}", ">SYMBOLS--------");
+  println!("{0:<5} | {1:<5}", "char", "count");
+  println!("{0:<5} | {1:<5}", "-----", "-----");
+  for i in 0..rows[1] {
+    println!("{0:^5} | {1:^5}", &counts_vec[1][i].0,&counts_vec[1][i].1);
+  }
 }
 
 #[derive(Parser)]   
@@ -132,11 +112,6 @@ fn main(){
     let res: Counts = sum_counts(&counts_v);
     let res_display: Vec<Vec<(char, u32)>> = counts_to_vec(&res);
 
-    for r in &res_display {
-        println!("{:?}", r);
-        println!("");
-    }
-    
-    display_counts(res_display, 4);
+    display_symbol_counts(res_display);
 }
 
